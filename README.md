@@ -8,7 +8,14 @@ slinc vs jni benchmark for the following routine
 4. copy object (jvm to native)
 5. copy string (native to jvm)
 
+Environment
 
+- Scala 3.2.2
+- JVM: JDK 17.0.3, OpenJDK 64-Bit Server VM, 17.0.3+7-LTS
+- slinc: 0.1.1-110-7863cb
+- Apple clang version 13.1.6 (clang-1316.0.21.2.5)
+
+Result
 
 | Benchmark              | Mode | Cnt | Score     | Error      | Units |
 | ---------------------- | ---- | --- | --------- | ---------- | ----- |
