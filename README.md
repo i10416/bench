@@ -6,7 +6,7 @@ slinc vs jni benchmark for the following routine
 2. invoke native call (jvm to native)
 3. dereferencing pointer (native to jvm)
 4. copy object (jvm to native)
-5. copy string (native to jvm)
+5. copy object (native to jvm)
 
 Environment
 
