@@ -21,3 +21,12 @@ Result
 | ---------------------- | ---- | --- | --------- | ---------- | ----- |
 | NativeBenchmarks.jni   | avgt | 5   | 5064.292  | ±  593.829 | ns/op |
 | NativeBenchmarks.slinc | avgt | 5   | 16882.792 | ± 1172.054 | ns/op |
+
+
+
+- JVM: OpenJDK Runtime Environment Zulu19.30+11-CA (build 19.0.1+10)
+
+|Benchmark     |          Mode  |Cnt|     Score|     Error|  Units|
+|---|---|---|---|---|---|
+|NativeBenchmarks.jni|    avgt|    5|  4872.056 |±  57.582|  ns/op|
+|NativeBenchmarks.slinc | avgt   | 5 | 5607.126 |± 115.210  |ns/op|
