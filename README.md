@@ -1,6 +1,38 @@
 ## About
 
-slinc vs jni benchmark for the following routine
+
+slinc vs jni benchmark
+
+
+### benchmark for simple operations
+
+#### Qsort benchmark
+
+In general, it is clear that upcall JVM method from native is quite slow.
+The following change makes a program extremely slower(check `SimpleNativeCallBenchmarks.jniNativeQSort` and `SimpleNativeCallBenchmarks.jniQSort`).
+
+```diff
+(JNIEnv *jenv, jobject jobj, jintArray jarr){
+  jint *arr = (*jenv)->GetIntArrayElements(jenv,jarr, 0);
+  jsize len = (*jenv)->GetArrayLength(jenv,jarr);
+-  qsort(arr,len,sizeof(int),compare_int);
++  qsort(arr,len,sizeof(int),upcall_compare_int);
+  (*jenv)->ReleaseIntArrayElements(jenv,jarr,arr, 0);
+  return;
+};
+```
+
+SlinC one is around 5 times slower than JNI one probably because SlincQsort transfers array between JVM and native, but I suspect there are other reasons why SlinC ones are slow because there is not large difference between `slincQSortWithCopyBack` and `slincQSortWithoutCopyBack`, which implies data transfer is not the bottleneck.
+
+| Benchmark                                            || Mode | Cnt | Score       | Error        |Units |
+| ---------------------------------------------------- | ---|---- | --- | ----------- | ------------ | ----- |
+| SimpleNativeCallBenchmarks.jniNativeQSort            |using native comparator|avgt | 5   | 4113.280    | ±    184.594 | ns/op |
+| SimpleNativeCallBenchmarks.jniQSort                  |using upcall comparator, destructively mutate original array|avgt | 5   | 281968.369  | ±   4070.398 | ns/op |
+| SimpleNativeCallBenchmarks.slincQSortWithCopyBack    |using upcall comparator, copy and transfer array| avgt | 5   | 1609949.152 | ± 429499.499 | ns/op |
+| SimpleNativeCallBenchmarks.slincQSortWithoutCopyBack | using upcall comparator, copy and transfer array, discarding result|avgt | 5   | 1574451.526 | ± 378398.468 | ns/op |
+
+### benchmark for more complex routine
+ for the following routine
 
 1. copy string (jvm to native)
 2. invoke native call (jvm to native)
@@ -33,11 +65,3 @@ JVM: OpenJDK Runtime Environment Zulu19.30+11-CA (build 19.0.1+10)
 
 
 
-Qsort benchmark
-
-| Benchmark                                            | Mode | Cnt | Score       | Error        | Units |
-| ---------------------------------------------------- | ---- | --- | ----------- | ------------ | ----- |
-| SimpleNativeCallBenchmarks.jniNativeQSort            | avgt | 5   | 4113.280    | ±    184.594 | ns/op |
-| SimpleNativeCallBenchmarks.jniQSort                  | avgt | 5   | 281968.369  | ±   4070.398 | ns/op |
-| SimpleNativeCallBenchmarks.slincQSortWithCopyBack    | avgt | 5   | 1609949.152 | ± 429499.499 | ns/op |
-| SimpleNativeCallBenchmarks.slincQSortWithoutCopyBack | avgt | 5   | 1574451.526 | ± 378398.468 | ns/op |

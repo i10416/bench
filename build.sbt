@@ -18,7 +18,7 @@ lazy val core = project
     javaOptions ++= Seq(
       "--enable-native-access=ALL-UNNAMED",
       // for JDK 17. Comment out when using JDK 19.
-      "--add-modules=jdk.incubator.foreign" 
+      // "--add-modules=jdk.incubator.foreign" 
     )
   )
   .dependsOn(`core-native` % Runtime)
@@ -46,6 +46,6 @@ lazy val bench = project
     Jmh / javaOptions ++= Seq(
      "--enable-native-access=ALL-UNNAMED",
     // for JDK 17. Comment out when using JDK 19.
-     "--add-modules=jdk.incubator.foreign"
+     //"--add-modules=jdk.incubator.foreign"
     )
   )
