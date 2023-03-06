@@ -130,3 +130,57 @@ JNIEXPORT jstring JNICALL Java_nativebench_ctimeJNIBenchHelper_jniCallCpStr
     jstring jstr = (*jenv)->NewStringUTF(jenv, buf);
     return jstr;
   };
+
+int compare_int(const void *a, const void *b)
+{
+    return *(int*)a - *(int*)b;
+};
+static JNIEnv* global_jenv;
+static jmethodID global_m;
+static jobject caller;
+
+int upcall_compare_int(const void* i,const void* j) {
+    return (*global_jenv)->CallIntMethod(global_jenv,caller,global_m,i,j);
+};
+JNIEXPORT void JNICALL Java_nativebench_ctimeJNIBenchHelper_setup
+  (JNIEnv *jenv, jobject jobj) {
+    global_jenv = jenv;
+    jclass clazz = (*jenv)->FindClass(jenv,"Lnativebench/ctimeJNIBenchHelper;");
+    global_m = (*jenv)->GetMethodID(jenv,clazz, "upcallIntCompare", "(JJ)I");
+    return;
+};
+
+JNIEXPORT void JNICALL Java_nativebench_ctimeJNIBenchHelper_upcall
+  (JNIEnv *jenv, jobject jobj) {
+    jclass clazz = (*jenv)->FindClass(jenv,"Lnativebench/ctimeJNIBenchHelper;");
+    jmethodID m = (*jenv)->GetMethodID(jenv,clazz, "upcallIntCompare", "(JJ)I");
+    int i = 2;
+    int j = 1;
+    int * iptr = &i;
+    int * jptr = &j;
+    int k = (*jenv)->CallIntMethod(jenv,jobj, m,(long)iptr,(long)jptr);
+    return;
+  };
+
+
+JNIEXPORT void JNICALL Java_nativebench_ctimeJNIBenchHelper_callNativeIntQsort
+(JNIEnv *jenv, jobject jobj, jintArray jarr){
+  jint *arr = (*jenv)->GetIntArrayElements(jenv,jarr, 0);
+  jsize len = (*jenv)->GetArrayLength(jenv,jarr);
+  qsort(arr,len,sizeof(int),compare_int);
+  (*jenv)->ReleaseIntArrayElements(jenv,jarr,arr, 0);
+  return;
+};
+
+JNIEXPORT void JNICALL Java_nativebench_ctimeJNIBenchHelper_callIntQsort
+(JNIEnv *jenv, jobject jobj, jintArray jarr){
+  jint *arr = (*jenv)->GetIntArrayElements(jenv,jarr, 0);
+  jsize len = (*jenv)->GetArrayLength(jenv,jarr);
+  caller = jobj;
+  qsort(arr,len,sizeof(int),upcall_compare_int);
+  (*jenv)->ReleaseIntArrayElements(jenv,jarr,arr, 0);
+  return;
+};
+
+
+

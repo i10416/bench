@@ -14,9 +14,11 @@ lazy val core = project
       "fr.hammons" %% "slinc-runtime" % "0.1.1-110-7863cb"
     ),
     run / fork := true,
+
     javaOptions ++= Seq(
       "--enable-native-access=ALL-UNNAMED",
-      "--add-modules=jdk.incubator.foreign"
+      // for JDK 17. Comment out when using JDK 19.
+      "--add-modules=jdk.incubator.foreign" 
     )
   )
   .dependsOn(`core-native` % Runtime)
@@ -40,8 +42,10 @@ lazy val bench = project
     Jmh / dependencyClasspath := (Test / dependencyClasspath).value,
     Jmh / compile := (Jmh / compile).dependsOn(Test / compile).value,
     Jmh / run := (Jmh / run).dependsOn(Jmh / compile).evaluated,
+    // for JDK 17. Comment out when using JDK 19.
     Jmh / javaOptions ++= Seq(
-      "--enable-native-access=ALL-UNNAMED",
-      "--add-modules=jdk.incubator.foreign"
+     "--enable-native-access=ALL-UNNAMED",
+    // for JDK 17. Comment out when using JDK 19.
+     "--add-modules=jdk.incubator.foreign"
     )
   )
