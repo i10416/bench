@@ -57,6 +57,30 @@ JNIEXPORT jlong JNICALL Java_nativebench_ctimeJNIBenchHelper_jniCallAllocTM
 
 /*
  * Class:      nativebench_ctimeJNIBenchHelper
+ * Method:     upcall
+ * Signature:  ()V
+ */
+JNIEXPORT void JNICALL Java_nativebench_ctimeJNIBenchHelper_upcall
+  (JNIEnv *, jobject);
+
+/*
+ * Class:      nativebench_ctimeJNIBenchHelper
+ * Method:     callNativeIntQsort
+ * Signature:  ([I)V
+ */
+JNIEXPORT void JNICALL Java_nativebench_ctimeJNIBenchHelper_callNativeIntQsort
+  (JNIEnv *, jobject, jintArray);
+
+/*
+ * Class:      nativebench_ctimeJNIBenchHelper
+ * Method:     callIntQsort
+ * Signature:  ([I)V
+ */
+JNIEXPORT void JNICALL Java_nativebench_ctimeJNIBenchHelper_callIntQsort
+  (JNIEnv *, jobject, jintArray);
+
+/*
+ * Class:      nativebench_ctimeJNIBenchHelper
  * Method:     jniCallSscanf
  * Signature:  (JJJJJJJ)V
  */
@@ -86,6 +110,14 @@ JNIEXPORT jlong JNICALL Java_nativebench_ctimeJNIBenchHelper_jniCallCtime
  */
 JNIEXPORT jstring JNICALL Java_nativebench_ctimeJNIBenchHelper_jniCallCpStr
   (JNIEnv *, jobject, jlong, jint);
+
+/*
+ * Class:      nativebench_ctimeJNIBenchHelper
+ * Method:     setup
+ * Signature:  ()V
+ */
+JNIEXPORT void JNICALL Java_nativebench_ctimeJNIBenchHelper_setup
+  (JNIEnv *, jobject);
 
 #ifdef __cplusplus
 }
