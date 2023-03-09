@@ -6,13 +6,22 @@ slinc vs jni benchmark
 
 ### benchmark for simple operations
 
+
 #### Qsort benchmark
 
+
+Environment
+
+- Scala 3.2.2
+- JVM: OpenJDK Runtime Environment Zulu19.30+11-CA (build 19.0.1+10)
+- slinc: 0.1.1-110-7863cb
+- Apple clang version 13.1.6 (clang-1316.0.21.2.5)
+
+
+
 In general, it is clear that upcall JVM method from native is quite slow.
-The following change makes a program extremely slower(check `SimpleNativeCallBenchmarks.jniNativeQSort` and `SimpleNativeCallBenchmarks.jniQSort`). There's only a small difference in performance between array copy back and forth and array copy without copy back. See `SimpleNativeCallBenchmarks.slincQSortWithCopyBack	` and `SimpleNativeCallBenchmarks.slincQSortWithoutCopyBack`.
-
-`SimpleNativeCallBenchmarks.slincQsortAllocCallbackForEachIteration` is much slower than `slincQSortWithCopyBack` and `slincQSortWithoutCopyBack`. Allocating upcall seems cosly operation.
-
+The following change makes a program extremely slower(check `SimpleNativeCallBenchmarks.
+jniNativeQSort` and `SimpleNativeCallBenchmarks.jniQSort`).
 
 ```diff
 (JNIEnv *jenv, jobject jobj, jintArray jarr){
@@ -24,6 +33,17 @@ The following change makes a program extremely slower(check `SimpleNativeCallBen
   return;
 };
 ```
+
+
+ There's only a small difference in performance between array copy back and forth and array copy without copy back. See `SimpleNativeCallBenchmarks.slincQSortWithCopyBack	` and `SimpleNativeCallBenchmarks.slincQSortWithoutCopyBack`.
+
+
+As is mentioned in the comment, I confirmed that `SimpleNativeCallBenchmarks.slincQsortAllocCallbackForEachIteration` is much slower than `slincQSortWithCopyBack` and `slincQSortWithoutCopyBack`. Allocating upcall seems cosly operation.
+
+
+> Having cloned your bench and having the callback allocated once (rather than per benchmark iteration), I see a improvement in performance of Slinc's upcall code to just 2x slower than JNI, rather than 5x slower
+>
+> https://github.com/markehammons/slinc/issues/81#issuecomment-1457928744
 
 SlinC one is around 2 times slower than JNI one when allocating callback in advance and 5x~ times slower when allocating callback for each iteration.
 
@@ -38,6 +58,10 @@ SlinC one is around 2 times slower than JNI one when allocating callback in adva
 | SimpleNativeCallBenchmarks.slincQSortWithCopyBack                  |  Using global shared upcall. Copy array back and forth.   | avgt | 5   | 618014.439  | ±   8280.107 | ns/op |
 | SimpleNativeCallBenchmarks.slincQSortWithoutCopyBack               |Using upcall. Copy and transfer array but not copy back. | avgt | 5   | 625336.580  | ±  10471.754 | ns/op |
 | SimpleNativeCallBenchmarks.slincQsortAllocCallbackForEachIteration | Allocating upcall for each iteration.  | avgt | 5   | 1700443.210 | ± 650331.220 | ns/op |
+Feedback from SlinC author(@markehammons)
+
+
+
 
 ### benchmark for more complex routine
  for the following routine
