@@ -6,10 +6,22 @@ slinc vs jni benchmark
 
 ### benchmark for simple operations
 
+
 #### Qsort benchmark
 
+
+Environment
+
+- Scala 3.2.2
+- JVM: OpenJDK Runtime Environment Zulu19.30+11-CA (build 19.0.1+10)
+- slinc: 0.1.1-110-7863cb
+- Apple clang version 13.1.6 (clang-1316.0.21.2.5)
+
+
+
 In general, it is clear that upcall JVM method from native is quite slow.
-The following change makes a program extremely slower(check `SimpleNativeCallBenchmarks.jniNativeQSort` and `SimpleNativeCallBenchmarks.jniQSort`).
+The following change makes a program extremely slower(check `SimpleNativeCallBenchmarks.
+jniNativeQSort` and `SimpleNativeCallBenchmarks.jniQSort`).
 
 ```diff
 (JNIEnv *jenv, jobject jobj, jintArray jarr){
@@ -22,20 +34,34 @@ The following change makes a program extremely slower(check `SimpleNativeCallBen
 };
 ```
 
-SlinC one is around 5 times slower than JNI one probably because SlincQsort transfers array between JVM and native, but I suspect there are other reasons why SlinC ones are slow because there is not large difference between `slincQSortWithCopyBack` and `slincQSortWithoutCopyBack`, which implies data transfer is not the bottleneck.
 
-Feedback from SlinC author(@markehammons)
+ There's only a small difference in performance between array copy back and forth and array copy without copy back. See `SimpleNativeCallBenchmarks.slincQSortWithCopyBack	` and `SimpleNativeCallBenchmarks.slincQSortWithoutCopyBack`.
+
+
+As is mentioned in the comment, I confirmed that `SimpleNativeCallBenchmarks.slincQsortAllocCallbackForEachIteration` is much slower than `slincQSortWithCopyBack` and `slincQSortWithoutCopyBack`. Allocating upcall seems cosly operation.
+
 
 > Having cloned your bench and having the callback allocated once (rather than per benchmark iteration), I see a improvement in performance of Slinc's upcall code to just 2x slower than JNI, rather than 5x slower
 >
 > https://github.com/markehammons/slinc/issues/81#issuecomment-1457928744
 
-| Benchmark                                            || Mode | Cnt | Score       | Error        |Units |
-| ---------------------------------------------------- | ---|---- | --- | ----------- | ------------ | ----- |
-| SimpleNativeCallBenchmarks.jniNativeQSort            |using native comparator|avgt | 5   | 4113.280    | ±    184.594 | ns/op |
-| SimpleNativeCallBenchmarks.jniQSort                  |using upcall comparator, destructively mutate original array|avgt | 5   | 281968.369  | ±   4070.398 | ns/op |
-| SimpleNativeCallBenchmarks.slincQSortWithCopyBack    |using upcall comparator, copy and transfer array| avgt | 5   | 1609949.152 | ± 429499.499 | ns/op |
-| SimpleNativeCallBenchmarks.slincQSortWithoutCopyBack | using upcall comparator, copy and transfer array, discarding result|avgt | 5   | 1574451.526 | ± 378398.468 | ns/op |
+SlinC one is around 2 times slower than JNI one when allocating callback in advance and 5x~ times slower when allocating callback for each iteration.
+
+~~SlinC one is around 5 times slower than JNI one probably because SlincQsort transfers array between JVM and native, but I suspect there are other reasons why SlinC ones are slow because there is not large difference between `slincQSortWithCopyBack` and `slincQSortWithoutCopyBack`, which implies data transfer is not the bottleneck~~
+
+
+
+| Benchmark                                                          |   NOTE  | Mode | Cnt | Score       | Error        | Units |
+| ------------------------------------------------------------------ | --- | ---- | --- | ----------- | ------------ | ----- |
+| SimpleNativeCallBenchmarks.jniNativeQSort                          | Using native comparator. __No upcall__     | avgt | 5   | 4272.838    | ±     50.298 | ns/op |
+| SimpleNativeCallBenchmarks.jniQSort                                |  Using upcall. destructively mutate original array    | avgt | 5   | 299570.811  | ±   4542.836 | ns/op |
+| SimpleNativeCallBenchmarks.slincQSortWithCopyBack                  |  Using global shared upcall. Copy array back and forth.   | avgt | 5   | 618014.439  | ±   8280.107 | ns/op |
+| SimpleNativeCallBenchmarks.slincQSortWithoutCopyBack               |Using upcall. Copy and transfer array but not copy back. | avgt | 5   | 625336.580  | ±  10471.754 | ns/op |
+| SimpleNativeCallBenchmarks.slincQsortAllocCallbackForEachIteration | Allocating upcall for each iteration.  | avgt | 5   | 1700443.210 | ± 650331.220 | ns/op |
+Feedback from SlinC author(@markehammons)
+
+
+
 
 ### benchmark for more complex routine
  for the following routine
@@ -64,10 +90,10 @@ Result
 
 JVM: OpenJDK Runtime Environment Zulu19.30+11-CA (build 19.0.1+10)
 
-|Benchmark     |          Mode  |Cnt|     Score|     Error|  Units|
-|---|---|---|---|---|---|
-|NativeBenchmarks.jni|    avgt|    5|  4872.056 |±  57.582|  ns/op|
-|NativeBenchmarks.slinc | avgt   | 5 | 5607.126 |± 115.210  |ns/op|
+| Benchmark              | Mode | Cnt | Score    | Error     | Units |
+| ---------------------- | ---- | --- | -------- | --------- | ----- |
+| NativeBenchmarks.jni   | avgt | 5   | 4872.056 | ±  57.582 | ns/op |
+| NativeBenchmarks.slinc | avgt | 5   | 5607.126 | ± 115.210 | ns/op |
 
 
 
