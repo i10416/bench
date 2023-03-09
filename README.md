@@ -9,7 +9,10 @@ slinc vs jni benchmark
 #### Qsort benchmark
 
 In general, it is clear that upcall JVM method from native is quite slow.
-The following change makes a program extremely slower(check `SimpleNativeCallBenchmarks.jniNativeQSort` and `SimpleNativeCallBenchmarks.jniQSort`).
+The following change makes a program extremely slower(check `SimpleNativeCallBenchmarks.jniNativeQSort` and `SimpleNativeCallBenchmarks.jniQSort`). There's only a small difference in performance between array copy back and forth and array copy without copy back. See `SimpleNativeCallBenchmarks.slincQSortWithCopyBack	` and `SimpleNativeCallBenchmarks.slincQSortWithoutCopyBack`.
+
+`SimpleNativeCallBenchmarks.slincQsortAllocCallbackForEachIteration` is much slower than `slincQSortWithCopyBack` and `slincQSortWithoutCopyBack`. Allocating upcall seems cosly operation.
+
 
 ```diff
 (JNIEnv *jenv, jobject jobj, jintArray jarr){
@@ -22,14 +25,19 @@ The following change makes a program extremely slower(check `SimpleNativeCallBen
 };
 ```
 
-SlinC one is around 5 times slower than JNI one probably because SlincQsort transfers array between JVM and native, but I suspect there are other reasons why SlinC ones are slow because there is not large difference between `slincQSortWithCopyBack` and `slincQSortWithoutCopyBack`, which implies data transfer is not the bottleneck.
+SlinC one is around 2 times slower than JNI one when allocating callback in advance and 5x~ times slower when allocating callback for each iteration.
 
-| Benchmark                                            || Mode | Cnt | Score       | Error        |Units |
-| ---------------------------------------------------- | ---|---- | --- | ----------- | ------------ | ----- |
-| SimpleNativeCallBenchmarks.jniNativeQSort            |using native comparator|avgt | 5   | 4113.280    | ±    184.594 | ns/op |
-| SimpleNativeCallBenchmarks.jniQSort                  |using upcall comparator, destructively mutate original array|avgt | 5   | 281968.369  | ±   4070.398 | ns/op |
-| SimpleNativeCallBenchmarks.slincQSortWithCopyBack    |using upcall comparator, copy and transfer array| avgt | 5   | 1609949.152 | ± 429499.499 | ns/op |
-| SimpleNativeCallBenchmarks.slincQSortWithoutCopyBack | using upcall comparator, copy and transfer array, discarding result|avgt | 5   | 1574451.526 | ± 378398.468 | ns/op |
+~~SlinC one is around 5 times slower than JNI one probably because SlincQsort transfers array between JVM and native, but I suspect there are other reasons why SlinC ones are slow because there is not large difference between `slincQSortWithCopyBack` and `slincQSortWithoutCopyBack`, which implies data transfer is not the bottleneck~~
+
+
+
+| Benchmark                                                          |   NOTE  | Mode | Cnt | Score       | Error        | Units |
+| ------------------------------------------------------------------ | --- | ---- | --- | ----------- | ------------ | ----- |
+| SimpleNativeCallBenchmarks.jniNativeQSort                          | Using native comparator. __No upcall__     | avgt | 5   | 4272.838    | ±     50.298 | ns/op |
+| SimpleNativeCallBenchmarks.jniQSort                                |  Using upcall. destructively mutate original array    | avgt | 5   | 299570.811  | ±   4542.836 | ns/op |
+| SimpleNativeCallBenchmarks.slincQSortWithCopyBack                  |  Using global shared upcall. Copy array back and forth.   | avgt | 5   | 618014.439  | ±   8280.107 | ns/op |
+| SimpleNativeCallBenchmarks.slincQSortWithoutCopyBack               |Using upcall. Copy and transfer array but not copy back. | avgt | 5   | 625336.580  | ±  10471.754 | ns/op |
+| SimpleNativeCallBenchmarks.slincQsortAllocCallbackForEachIteration | Allocating upcall for each iteration.  | avgt | 5   | 1700443.210 | ± 650331.220 | ns/op |
 
 ### benchmark for more complex routine
  for the following routine
@@ -58,10 +66,10 @@ Result
 
 JVM: OpenJDK Runtime Environment Zulu19.30+11-CA (build 19.0.1+10)
 
-|Benchmark     |          Mode  |Cnt|     Score|     Error|  Units|
-|---|---|---|---|---|---|
-|NativeBenchmarks.jni|    avgt|    5|  4872.056 |±  57.582|  ns/op|
-|NativeBenchmarks.slinc | avgt   | 5 | 5607.126 |± 115.210  |ns/op|
+| Benchmark              | Mode | Cnt | Score    | Error     | Units |
+| ---------------------- | ---- | --- | -------- | --------- | ----- |
+| NativeBenchmarks.jni   | avgt | 5   | 4872.056 | ±  57.582 | ns/op |
+| NativeBenchmarks.slinc | avgt | 5   | 5607.126 | ± 115.210 | ns/op |
 
 
 

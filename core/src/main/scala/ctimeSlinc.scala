@@ -15,24 +15,33 @@ object benchBinding derives Library:
   ): Unit = Library.binding
 
 object ctimeSlincBenchHelper:
-  def runQsortWithoutCopyBack(arr: Array[Int]):Unit =
+  def runQsortWithoutCopyBack(
+      arr: Array[Int],
+      cb: Ptr[(Ptr[Any], Ptr[Any]) => Int]
+  ): Unit =
     Scope.confined {
       val data = Ptr.copy(arr)
+      benchBinding.qsort(data.castTo[Any], arr.length.toLong, 4.as[SizeT], cb)
+    }
+  def runQsortAllocCallbackForEachIteration(
+      arr: Array[Int]
+  ): Unit =
+    Scope.confined {
+      val data = Ptr.copy(arr)
+
       val cb = Ptr.upcall[(Ptr[Any], Ptr[Any]) => Int] { (iptr0, iptr1) =>
         val i = !iptr0.castTo[Int]
-        val j = !iptr1.castTo[Int]        
+        val j = !iptr1.castTo[Int]
         i - j
       }
       benchBinding.qsort(data.castTo[Any], arr.length.toLong, 4.as[SizeT], cb)
     }
-  def runQsortWithCopyBack(arr: Array[Int]): Array[Int] =
+  def runQsortWithCopyBack(
+      arr: Array[Int],
+      cb: Ptr[(Ptr[Any], Ptr[Any]) => Int]
+  ): Array[Int] =
     Scope.confined {
       val data = Ptr.copy(arr)
-      val cb = Ptr.upcall[(Ptr[Any], Ptr[Any]) => Int] { (iptr0, iptr1) =>
-        val i = !iptr0.castTo[Int]
-        val j = !iptr1.castTo[Int]     
-        i - j
-      }
       benchBinding.qsort(data.castTo[Any], arr.length.toLong, 4.as[SizeT], cb)
       data.asArray(arr.length).unsafeArray
     }
