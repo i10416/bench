@@ -24,6 +24,12 @@ The following change makes a program extremely slower(check `SimpleNativeCallBen
 
 SlinC one is around 5 times slower than JNI one probably because SlincQsort transfers array between JVM and native, but I suspect there are other reasons why SlinC ones are slow because there is not large difference between `slincQSortWithCopyBack` and `slincQSortWithoutCopyBack`, which implies data transfer is not the bottleneck.
 
+Feedback from SlinC author(@markehammons)
+
+> Having cloned your bench and having the callback allocated once (rather than per benchmark iteration), I see a improvement in performance of Slinc's upcall code to just 2x slower than JNI, rather than 5x slower
+>
+> https://github.com/markehammons/slinc/issues/81#issuecomment-1457928744
+
 | Benchmark                                            || Mode | Cnt | Score       | Error        |Units |
 | ---------------------------------------------------- | ---|---- | --- | ----------- | ------------ | ----- |
 | SimpleNativeCallBenchmarks.jniNativeQSort            |using native comparator|avgt | 5   | 4113.280    | ±    184.594 | ns/op |
