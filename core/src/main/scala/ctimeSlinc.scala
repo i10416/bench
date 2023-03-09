@@ -30,7 +30,7 @@ object ctimeSlincBenchHelper:
       val data = Ptr.copy(arr)
       val cb = Ptr.upcall[(Ptr[Any], Ptr[Any]) => Int] { (iptr0, iptr1) =>
         val i = !iptr0.castTo[Int]
-        val j = !iptr1.castTo[Int]        
+        val j = !iptr1.castTo[Int]     
         i - j
       }
       benchBinding.qsort(data.castTo[Any], arr.length.toLong, 4.as[SizeT], cb)
