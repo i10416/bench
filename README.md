@@ -53,6 +53,7 @@ SlinC one is around 2 times slower than JNI one when allocating callback in adva
 
 | Benchmark                                                          |   NOTE  | Mode | Cnt | Score       | Error        | Units |
 | ------------------------------------------------------------------ | --- | ---- | --- | ----------- | ------------ | ----- |
+|SimpleNativeCallBenchmarks.slincQSortJVM    |  | avgt|    5 |     1774.509| ±      4.972|  ns/op|
 | SimpleNativeCallBenchmarks.jniNativeQSort                          | Using native comparator. __No upcall__     | avgt | 5   | 4272.838    | ±     50.298 | ns/op |
 | SimpleNativeCallBenchmarks.jniQSort                                |  Using upcall. destructively mutate original array    | avgt | 5   | 299570.811  | ±   4542.836 | ns/op |
 | SimpleNativeCallBenchmarks.slincQSortWithCopyBack                  |  Using global shared upcall. Copy array back and forth.   | avgt | 5   | 618014.439  | ±   8280.107 | ns/op |
@@ -99,5 +100,15 @@ JVM: OpenJDK Runtime Environment Zulu19.30+11-CA (build 19.0.1+10)
 | ---------------------- | ---- | --- | -------- | --------- | ----- |
 | NativeBenchmarks.jni   | avgt | 5   | 4872.056 | ±  57.582 | ns/op |
 | NativeBenchmarks.slinc | avgt | 5   | 5607.126 | ± 115.210 | ns/op |
+
+## Caveat
+
+JNI or FFI is not always the fastest solution.
+
+For example, see benchmark for quicksort and you can find `SimpleNativeCallBenchmarks.slincQSortJVM` is the fastest.
+
+You should take overhead into consideration, find real bottleneck and carefully measure the performance benefits before resorting to FFI.
+
+
 
 
