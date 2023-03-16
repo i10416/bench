@@ -38,7 +38,7 @@ jniNativeQSort` and `SimpleNativeCallBenchmarks.jniQSort`).
  There's only a small difference in performance between array copy back and forth and array copy without copy back. See `SimpleNativeCallBenchmarks.slincQSortWithCopyBack	` and `SimpleNativeCallBenchmarks.slincQSortWithoutCopyBack`.
 
 
-As is mentioned in the comment, I confirmed that `SimpleNativeCallBenchmarks.slincQsortAllocCallbackForEachIteration` is much slower than `slincQSortWithCopyBack` and `slincQSortWithoutCopyBack`. Allocating upcall seems cosly operation.
+As is mentioned in the comment, I confirmed that `SimpleNativeCallBenchmarks.slincQsortAllocCallbackForEachIteration` is much slower than `slincQSortWithCopyBack` and `slincQSortWithoutCopyBack`. Allocating upcall seems costly operation.
 
 
 > Having cloned your bench and having the callback allocated once (rather than per benchmark iteration), I see a improvement in performance of Slinc's upcall code to just 2x slower than JNI, rather than 5x slower
@@ -64,7 +64,8 @@ Feedback from SlinC author(@markehammons)
 
 
 ### benchmark for more complex routine
- for the following routine
+
+For the following routine,
 
 1. copy string (jvm to native)
 2. invoke native call (jvm to native)
@@ -72,12 +73,15 @@ Feedback from SlinC author(@markehammons)
 4. copy object (jvm to native)
 5. copy object (native to jvm)
 
-Environment
+
+with the following environment,
 
 - Scala 3.2.2
 - JVM: JDK 17.0.3, OpenJDK 64-Bit Server VM, 17.0.3+7-LTS
 - slinc: 0.1.1-110-7863cb
 - Apple clang version 13.1.6 (clang-1316.0.21.2.5)
+
+slinc one takes around 3x~ longer than jni.
 
 Result
 
@@ -87,6 +91,7 @@ Result
 | NativeBenchmarks.slinc | avgt | 5   | 16882.792 | ± 1172.054 | ns/op |
 
 
+However, just updating JDK to Zulu19.30+11-CA, slinc one gets nearly as fast as jni one.
 
 JVM: OpenJDK Runtime Environment Zulu19.30+11-CA (build 19.0.1+10)
 
@@ -94,6 +99,5 @@ JVM: OpenJDK Runtime Environment Zulu19.30+11-CA (build 19.0.1+10)
 | ---------------------- | ---- | --- | -------- | --------- | ----- |
 | NativeBenchmarks.jni   | avgt | 5   | 4872.056 | ±  57.582 | ns/op |
 | NativeBenchmarks.slinc | avgt | 5   | 5607.126 | ± 115.210 | ns/op |
-
 
 
