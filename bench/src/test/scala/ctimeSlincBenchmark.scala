@@ -73,6 +73,9 @@ class SimpleNativeCallBenchmarks {
   def setup(): Unit =
     jniInstance = ctimeJNIBenchHelper()
   @Benchmark
+  def slincQSortJVM(bh: Blackhole, state: QSortState): Unit =
+    bh.consume(scala.util.Sorting.quickSort(state.values))
+  @Benchmark
   def jniNativeQSort(bh: Blackhole, state: QSortState): Unit =
     jniInstance.callNativeIntQsort(state.values)
   @Benchmark
