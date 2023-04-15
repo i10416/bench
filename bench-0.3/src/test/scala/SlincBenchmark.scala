@@ -6,6 +6,14 @@ import org.openjdk.jmh.infra.Blackhole
 import fr.hammons.slinc.Ptr
 import fr.hammons.slinc.fset.FSetBacking
 
+@State(Scope.Thread)
+class TransferArrayState {
+  var values: Array[Int] = null
+  @Setup
+  def setup(): Unit =
+    values = Array.fill(1_000)(scala.util.Random.nextInt())
+}
+
 @State(Scope.Benchmark)
 @BenchmarkMode(Array(Mode.AverageTime))
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
@@ -33,6 +41,10 @@ class NativeBenchmarks {
   def ctimeSlinc: String = ctimeSlincBenchHelper.run(slincInst)
   @Benchmark
   def ctimeJNI: String = jniInstance.run()
+
+  @Benchmark
+  def transferArray(bh: Blackhole, state: TransferArrayState): Array[Int] =
+    ctimeSlincBenchHelper.transferArray(state.values)
 }
 
 @State(Scope.Thread)

@@ -15,6 +15,11 @@ object benchBinding derives Library:
   ): Unit = Library.binding
 
 object ctimeSlincBenchHelper:
+  def transferArray(arr: Array[Int]): Array[Int] =
+    Scope.confined {
+      val data = Ptr.copy(arr)
+      data.asArray(arr.length).unsafeArray
+    }
   def runQsortWithoutCopyBack(
       arr: Array[Int],
       cb: Ptr[(Ptr[Any], Ptr[Any]) => Int]
