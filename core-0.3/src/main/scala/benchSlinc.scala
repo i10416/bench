@@ -16,6 +16,13 @@ trait benchBinding derives FSet:
   ): Unit
 
 object ctimeSlincBenchHelper:
+  def transferArray(
+      arr: Array[Int]
+  ): Array[Int] =
+    Scope.confined {
+      val data = Ptr.copy(arr)
+      data.asArray(arr.length).unsafeArray
+    }
   val ELM_SIZE = sizeOf[Int]
   def runQsortWithoutCopyBack(
       benchBinding: benchBindingType,
@@ -31,6 +38,7 @@ object ctimeSlincBenchHelper:
         cb
       )
     }
+
   def runQsortAllocCallbackForEachIteration(
       benchBinding: benchBindingType,
       arr: Array[Int]
