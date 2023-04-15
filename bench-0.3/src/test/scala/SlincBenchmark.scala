@@ -4,6 +4,7 @@ import org.openjdk.jmh.annotations._
 import java.util.concurrent.TimeUnit
 import org.openjdk.jmh.infra.Blackhole
 import fr.hammons.slinc.Ptr
+import fr.hammons.slinc.fset.FSetBacking
 
 @State(Scope.Benchmark)
 @BenchmarkMode(Array(Mode.AverageTime))
@@ -23,13 +24,15 @@ class NativeBenchmarks {
 
   var length: Int = _;
   var jniInstance: ctimeJNIBenchHelper = _
+  var slincInst: ctimeSlincBenchHelper.benchBindingType = _
   @Setup
   def setup(): Unit =
     jniInstance = ctimeJNIBenchHelper()
+    slincInst = benchBinding.instance
   @Benchmark
-  def slinc: String = ctimeSlincBenchHelper.run
+  def ctimeSlinc: String = ctimeSlincBenchHelper.run(slincInst)
   @Benchmark
-  def jni: String = jniInstance.run()
+  def ctimeJNI: String = jniInstance.run()
 }
 
 @State(Scope.Thread)
@@ -69,9 +72,11 @@ class SimpleNativeCallBenchmarks {
 
   var length: Int = _;
   var jniInstance: ctimeJNIBenchHelper = _
+  var slincInstance: ctimeSlincBenchHelper.benchBindingType = _
   @Setup
   def setup(): Unit =
     jniInstance = ctimeJNIBenchHelper()
+    slincInstance = benchBinding.instance
   @Benchmark
   def slincQSortJVM(bh: Blackhole, state: QSortState): Unit =
     bh.consume(scala.util.Sorting.quickSort(state.values))
@@ -88,12 +93,16 @@ class SimpleNativeCallBenchmarks {
       state: QSortState
   ): Unit =
     bh.consume(
-      ctimeSlincBenchHelper.runQsortAllocCallbackForEachIteration(state.values)
+      ctimeSlincBenchHelper.runQsortAllocCallbackForEachIteration(
+        slincInstance,
+        state.values
+      )
     )
   @Benchmark
   def slincQSortWithoutCopyBack(bh: Blackhole, state: QSortState): Unit =
     bh.consume(
       ctimeSlincBenchHelper.runQsortWithoutCopyBack(
+        slincInstance,
         state.values,
         state.callbackHandle
       )
@@ -101,6 +110,7 @@ class SimpleNativeCallBenchmarks {
   @Benchmark
   def slincQSortWithCopyBack(bh: Blackhole, state: QSortState): Array[Int] =
     ctimeSlincBenchHelper.runQsortWithCopyBack(
+      slincInstance,
       state.values,
       state.callbackHandle
     )
