@@ -16,6 +16,7 @@ Environment
 - JVM: OpenJDK Runtime Environment Zulu19.30+11-CA (build 19.0.1+10)
 - slinc: 0.1.1-110-7863cb
 - Apple clang version 13.1.6 (clang-1316.0.21.2.5)
+- slinc 0.1.1-110-7863cb
 
 
 
@@ -59,7 +60,11 @@ SlinC one is around 2 times slower than JNI one when allocating callback in adva
 | SimpleNativeCallBenchmarks.slincQSortWithCopyBack                  |  Using global shared upcall. Copy array back and forth.   | avgt | 5   | 618014.439  | ±   8280.107 | ns/op |
 | SimpleNativeCallBenchmarks.slincQSortWithoutCopyBack               |Using upcall. Copy and transfer array but not copy back. | avgt | 5   | 625336.580  | ±  10471.754 | ns/op |
 | SimpleNativeCallBenchmarks.slincQsortAllocCallbackForEachIteration | Allocating upcall for each iteration.  | avgt | 5   | 1700443.210 | ± 650331.220 | ns/op |
+
+
 Feedback from SlinC author(@markehammons)
+
+> Having cloned your bench and having the callback allocated once (rather than per benchmark iteration), I see a improvement in performance of Slinc's upcall code to just 2x slower than JNI, rather than 5x slower. I think there may be more performance improvements to be found, but first I should make us able to generate an upcall from a method rather than a lambda and see what the performance from that looks like.
 
 
 
@@ -81,6 +86,7 @@ with the following environment,
 - JVM: JDK 17.0.3, OpenJDK 64-Bit Server VM, 17.0.3+7-LTS
 - slinc: 0.1.1-110-7863cb
 - Apple clang version 13.1.6 (clang-1316.0.21.2.5)
+- slinc 0.10-110-7863cb
 
 slinc one takes around 3x~ longer than jni.
 
@@ -103,11 +109,11 @@ JVM: OpenJDK Runtime Environment Zulu19.30+11-CA (build 19.0.1+10)
 
 ## Caveat
 
-JNI or FFI is not always the fastest solution.
+JNI or FFI is not always the fastest solution as modern JVM is quote performant and communication between native and jvm is not free.
 
 For example, see benchmark for quicksort and you can find `SimpleNativeCallBenchmarks.slincQSortJVM` is the fastest.
 
-You should take overhead into consideration, find real bottleneck and carefully measure the performance benefits before resorting to FFI.
+You should take overhead into consideration. Find a significant bottleneck and carefully measure the performance benefits before resorting to FFI.
 
 
 
