@@ -36,7 +36,7 @@ jniNativeQSort` and `SimpleNativeCallBenchmarks.jniQSort`).
 ```
 
 
- There's only a small difference in performance between array copy back and forth and array copy without copy back. See `SimpleNativeCallBenchmarks.slincQSortWithCopyBack	` and `SimpleNativeCallBenchmarks.slincQSortWithoutCopyBack`.
+ There's only a small difference in performance between array copy back and forth and array copy without copy back. See `SimpleNativeCallBenchmarks.slincQSortWithCopyBack	` and `SimpleNativeCallBenchmarks.slincQSortWithoutCopyBack`.[^1]
 
 
 As is mentioned in the comment, I confirmed that `SimpleNativeCallBenchmarks.slincQsortAllocCallbackForEachIteration` is much slower than `slincQSortWithCopyBack` and `slincQSortWithoutCopyBack`. Allocating upcall seems costly operation.
@@ -116,5 +116,6 @@ For example, see benchmark for quicksort and you can find `SimpleNativeCallBench
 You should take overhead into consideration. Find a significant bottleneck and carefully measure the performance benefits before resorting to FFI.
 
 
+[^1]: This is not the case with Slinc 0.3.0. It takes around 1.3x longer for with copyback than without copyback. Note that the author says it is the expected result as 0.3.0 focuses on refactoring rather than performance optimization.
 
 
