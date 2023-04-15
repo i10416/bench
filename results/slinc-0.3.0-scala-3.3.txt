@@ -1,0 +1,9 @@
+[info] Benchmark                                                           Mode  Cnt        Score       Error  Units
+[info] NativeBenchmarks.ctimeJNI                                           avgt    5     5080.173 ±   279.500  ns/op
+[info] NativeBenchmarks.ctimeSlinc                                         avgt    5     6665.928 ±   242.225  ns/op
+[info] SimpleNativeCallBenchmarks.jniNativeQSort                           avgt    5     4096.001 ±   161.264  ns/op
+[info] SimpleNativeCallBenchmarks.jniQSort                                 avgt    5   284095.322 ±  4402.432  ns/op
+[info] SimpleNativeCallBenchmarks.slincQSortJVM                            avgt    5      191.390 ±     3.029  ns/op
+[info] SimpleNativeCallBenchmarks.slincQSortWithCopyBack                   avgt    5  1210048.181 ± 44536.967  ns/op
+[info] SimpleNativeCallBenchmarks.slincQSortWithoutCopyBack                avgt    5   963393.420 ± 40853.952  ns/op
+[info] SimpleNativeCallBenchmarks.slincQsortAllocCallbackForEachIteration  avgt    5  1623060.091 ± 61705.828  ns/op
